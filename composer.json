@@ -12,11 +12,6 @@
             "Hamaka\\Typesense\\": "src/"
         }
     },
-    "extra": {
-        "expose": [
-            "client"
-        ]
-    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }

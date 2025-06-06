@@ -2,6 +2,7 @@
 
     namespace Hamaka\Typesense\Service;
 
+    use SilverStripe\Assets\Shortcodes\TypesenseImageShortcodeProvider;
     use SilverStripe\Control\Director;
     use SilverStripe\Core\Config\Configurable;
     use SilverStripe\Core\Injector\Injectable;
@@ -63,11 +64,11 @@
         {
             return Member::actAs(null, function () use ($object) {
 
-                /** @var ShortcodeParser $shortcodeParser */
                 $shortcodeParser = ShortcodeParser::get_active();
 
                 //Disable image shortcode
                 $shortcodeParser->unregister('image');
+                ShortcodeParser::get('default')->register('image', [TypesenseImageShortcodeProvider::class, 'handle_shortcode']);
 
                 try {
                     // Test the page in live mode
@@ -89,7 +90,7 @@
                     // Extract the content from the processed DOM
                     return $this->extractContentFromDom($dom);
                 } finally {
-                    
+
                 }
             });
         }

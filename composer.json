@@ -1,0 +1,22 @@
+{
+    "name": "hamaka/silverstripe-typesense",
+    "description": "Typesense integration for Silverstripe CMS",
+    "type": "silverstripe-vendormodule",
+    "license": "MIT",
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "silverstripe/framework": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hamaka\\Typesense\\": "src/"
+        }
+    },
+    "extra": {
+        "expose": [
+            "client"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

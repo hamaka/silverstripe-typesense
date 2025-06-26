@@ -35,13 +35,13 @@
          *
          * @return array|false The Typesense document or false if the object couldn't be rendered
          */
-        public function getTypesenseDocument(DataObject $object)
+        public function getTypesenseDocument(DataObject $object): array
         {
             // Get page content as rendered for a non-member
             $pageContent = $this->renderPageAsNonMember($object);
 
             if ( ! $pageContent) {
-                return false;
+                return [];
             }
 
             // Initialize data array with basic fields
@@ -72,6 +72,7 @@
 
                 try {
                     // Test the page in live mode
+
                     $response = Director::test(Director::makeRelative($object->getAbsoluteLiveLink()));
                     if ($response->getStatusCode() !== 200) {
                         return false;
@@ -196,14 +197,14 @@
         /**
          * Convert HTML to accessible text format
          *
-         * @param string $html The HTML content to convert
+         * @param string $sHtml The HTML content to convert
          *
          * @return string Accessible text representation
          */
-        public function convertHtmlToAccessibleText($html)
+        public function convertHtmlToAccessibleText($sHtml)
         {
             $dom = new \DOMDocument();
-            @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
+            @$dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),
                 LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $xpath = new \DOMXPath($dom);
 

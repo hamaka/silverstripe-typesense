@@ -4,46 +4,78 @@ This module provides integration between Silverstripe CMS and Typesense search e
 
 ## Installation
 
-```bash
-composer require hamaka/silverstripe-typesense
+Before installing the hamaka/silverstripe-typesense package, you have to add the path to your composer.json
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "https://[YOURBITBUCKETUSERNAME]@bitbucket.org/hamaka/silverstripe-typesense.git"
+        }
+    ]
+}
+
+
+
 ```
 
 After installing, run a dev/build to ensure all new classes are available.
 
 ```bash
-vendor/bin/sake dev/build
+yarn run dev/build
 ```
 
 ## Configuration
+
+### Enviorment variables for Typesense
+
+```bash
+#'head /dev/urandom | shasum -a 256' works great for this
+TYPESENSE_API_KEY=5f02d0b58c49a99e8e8f65b74ebb9fdc5b1a2dfe56639bdc8551650900435f33
+
+# this is your INTERNALLY accessible typesense server, not the one that appears in frontend
+TYPESENSE_SERVER="https://typesense.hamakaserver.nl:443"
+
+# this is obtained from the Typesense dashboard, after you've started it up
+TYPESENSE_SEARCH_KEY=""
+```
+
+### Making a collection for Typesense
 
 You can configure the Typesense integration using YAML configuration. Create a file in your project's `_config` directory:
 
 ```yaml
 # app/_config/typesense.yml
----
-Name: app-typesense
-After: 'typesense'
----
-Hamaka\Typesense\Service\TypesenseService:
-  enabled: true
-  # Add your custom configuration options here
+ElliotSawyer\SilverstripeTypesense\Typesense:
+  collections:
+    SilverStripe\CMS\Model\SiteTree:
+      name: "Pages"
+      fields:
+        - { name: Title, type: string, sort: true }
+        - { name: FullPage, type: string, optional: true }
+      default_sorting_field: # 'exampleField'
+      token_separators: # '-'
+      symbols_to_index: # '+'
+      import_limit: 10
+      connection_timeout: 2
+      excluded_classes:
+        - SilverStripe\ErrorPage\ErrorPage
 ```
 
 ## Usage
 
-### Making a DataObject indexable
+### Customize the data for an DataObject
 
-To make a DataObject indexable by Typesense, use the `TypesenseIndexable` trait:
+To customize the data from a DataObject indexable by Typesense, use the `TypesenseEditable` trait and use the function `updateTypesenseDocument` to modify the output to the typesense server:
 
 ```php
-use Hamaka\Typesense\Extensions\TypesenseIndexable;
+use Hamaka\Typesense\Traits\TypesenseEditable;
 use SilverStripe\ORM\DataObject;
 
 class MyPage extends DataObject
 {
-    use TypesenseIndexable;
-    
-    // Your DataObject code...
+    use TypesenseEditable;
     
     /**
      * Customize the Typesense document

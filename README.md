@@ -10,7 +10,7 @@ Before installing the hamaka/silverstripe-typesense package, you have to add the
 {
     "repositories": [
         {
-            "type": "path",
+            "type": "vcs",
             "url": "https://[YOURBITBUCKETUSERNAME]@bitbucket.org/hamaka/silverstripe-typesense.git"
         }
     ]
@@ -40,6 +40,26 @@ TYPESENSE_SERVER="https://typesense.hamakaserver.nl:443"
 # this is obtained from the Typesense dashboard, after you've started it up
 TYPESENSE_SEARCH_KEY=""
 ```
+### Configuring the FullPage DOM Extract Service
+
+Use this configuration to clean scraped HTML content before indexing it in Typesense. You can remove unwanted DOM tags and optionally target a specific element by CSS class to extract the main content for the FullPage field.
+
+By default, the service removes non-content HTML tags (e.g. `<style>`, `<script>`, `<img>`). See _config/typesense.yml. 
+
+```yaml
+Hamaka\Typesense\Service\TypesenseService:
+  # Tags to strip from the HTML DOM (e.g. script, style, header)
+  strip_dom_tags:
+    - style
+    - script
+    - img
+
+  # Remove elements based on CSS class names
+  strip_dom_classes: []
+
+  # Extract content from a specific DOM element by class if present (e.g. 'main-content')
+  target_dom_class: ''
+```
 
 ### Making a collection for Typesense
 
@@ -62,60 +82,6 @@ ElliotSawyer\SilverstripeTypesense\Typesense:
       excluded_classes:
         - SilverStripe\ErrorPage\ErrorPage
 ```
-
-## Usage
-
-### Customize the data for an DataObject
-
-To customize the data from a DataObject indexable by Typesense, use the `TypesenseEditable` trait and use the function `updateTypesenseDocument` to modify the output to the typesense server:
-
-```php
-use Hamaka\Typesense\Traits\TypesenseEditable;
-use SilverStripe\ORM\DataObject;
-
-class MyPage extends DataObject
-{
-    use TypesenseEditable;
-    
-    /**
-     * Customize the Typesense document
-     */
-    public function updateTypesenseDocument($document)
-    {
-        // Add custom fields or modify the document
-        $document['CustomField'] = $this->CustomValue;
-        
-        return $document;
-    }
-}
-```
-
-### Using the TypesenseService directly
-
-You can also use the TypesenseService directly:
-
-```php
-use Hamaka\Typesense\Service\TypesenseService;
-use SilverStripe\Core\Injector\Injector;
-
-// Get the service
-$typesenseService = Injector::inst()->get(TypesenseService::class);
-
-// Convert HTML to accessible text
-$accessibleText = $typesenseService->convertHtmlToAccessibleText($htmlContent);
-
-// Get a Typesense document for a DataObject
-$document = $typesenseService->getTypesenseDocument($myDataObject);
-```
-
-## Available Methods
-
-The TypesenseService provides several methods for processing HTML content:
-
-- `getTypesenseDocument(DataObject $object)`: Converts a DataObject to a Typesense document
-- `renderPageAsNonMember(DataObject $object)`: Renders a page as a non-member
-- `convertHtmlToAccessibleText($html)`: Converts HTML to accessible text
-- `addStrippedHtmlFields($aData, DataObject $object, array $fields)`: Adds fields with HTML converted to accessible text
 
 ## License
 

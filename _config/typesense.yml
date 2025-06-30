@@ -1,6 +1,0 @@
----
-Name: typesense
----
-Hamaka\Typesense\Service\TypesenseService:
-  enabled: true
-  # Default configuration options can be added here

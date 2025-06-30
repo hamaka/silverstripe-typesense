@@ -3,8 +3,10 @@
     namespace Hamaka\Typesense\Service;
 
     use SilverStripe\Assets\Shortcodes\TypesenseImageShortcodeProvider;
+    use SilverStripe\CMS\Model\SiteTree;
     use SilverStripe\Control\Director;
     use SilverStripe\Core\Config\Configurable;
+    use SilverStripe\Core\Extension;
     use SilverStripe\Core\Injector\Injectable;
     use SilverStripe\ORM\DataObject;
     use SilverStripe\Security\Member;
@@ -26,32 +28,28 @@
          * @var bool
          */
         private static $enabled = true;
+        private static $target_dom_class = '';
+        private static $strip_dom_tags = [
+            'style',
+            'script',
+            'img',
+            'svg',
+            'noscript',
+            'iframe',
+            'object',
+            'embed',
+            'video',
+            'audio',
+            'canvas',
+            'picture',
+            'source',
+            'link',
+            'meta',
+            'head',
+            'template',
+        ];
+        private static $strip_dom_classes = [];
 
-        /**
-         * Custom method to prepare data for Typesense indexing
-         * Strips HTML tags from Content field to ensure plain text is indexed
-         *
-         * @param DataObject $object The object to convert to a Typesense document
-         *
-         * @return array|false The Typesense document or false if the object couldn't be rendered
-         */
-        public function getTypesenseDocument(DataObject $object): array
-        {
-            // Get page content as rendered for a non-member
-            $pageContent = $this->renderPageAsNonMember($object);
-
-            if ( ! $pageContent) {
-                return [];
-            }
-
-            // Initialize data array with basic fields
-            $aData = $this->initializeTypesenseData($object);
-
-            // Add page content to data array
-            $aData['FullPage'] = $this->convertHtmlToAccessibleText($pageContent);
-
-            return $aData;
-        }
 
         /**
          * Render the page as a non-member in live mode and process the DOM
@@ -60,13 +58,13 @@
          *
          * @return string|false Processed page content or false if rendering failed
          */
-        public function renderPageAsNonMember(DataObject $object)
+        public function renderPageAsNonMember(SiteTree $object)
         {
             return Member::actAs(null, function () use ($object) {
 
                 $shortcodeParser = ShortcodeParser::get_active();
 
-                //Disable image shortcode
+                //Disable image shortcodes
                 $shortcodeParser->unregister('image');
                 ShortcodeParser::get('default')->register('image', [TypesenseImageShortcodeProvider::class, 'handle_shortcode']);
 
@@ -85,11 +83,13 @@
                     $dom = new \DOMDocument();
                     @$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-                    // Process the DOM to remove unwanted elements
-                    $this->removeUnwantedElements($dom);
+                    $oTypesenseConfig = $this->config();
 
-                    // Extract the content from the processed DOM
-                    return $this->extractContentFromDom($dom);
+                    $this->removeUnwantedElements($dom, $oTypesenseConfig->get('strip_dom_tags'));
+
+                    $this->removeUnwantedElementsByClasses($dom, $oTypesenseConfig->get('strip_dom_classes'));
+
+                    return $this->extractContentFromDom($dom, $oTypesenseConfig->get('target_dom_class'));
                 } finally {
 
                 }
@@ -101,32 +101,32 @@
          *
          * @param \DOMDocument $dom The DOM document to process
          */
-        public function removeUnwantedElements(\DOMDocument $dom)
+        public function removeUnwantedElements(\DOMDocument $dom, $aElements = [])
         {
             $xpath = new \DOMXPath($dom);
 
-            // Remove header and footer
-            $elementsToRemove = $xpath->query("//div[contains(@class, 'header')] | //div[contains(@class, 'footer')]");
-            foreach ($elementsToRemove as $element) {
-                $element->parentNode->removeChild($element);
+            foreach ($aElements as $Element) {
+                $styleElements = $xpath->query("//" . $Element);
+                foreach ($styleElements as $style) {
+                    $style->parentNode->removeChild($style);
+                }
             }
+        }
 
-            // Remove all style elements
-            $styleElements = $xpath->query("//style");
-            foreach ($styleElements as $style) {
-                $style->parentNode->removeChild($style);
-            }
+        /**
+         * Remove unwanted elements from the DOM by class
+         *
+         * @param \DOMDocument $dom The DOM document to process
+         */
+        public function removeUnwantedElementsByClasses(\DOMDocument $dom, $aClasses = [])
+        {
+            $xpath = new \DOMXPath($dom);
 
-            // Remove all image elements to prevent image parsing
-            $imageElements = $xpath->query("//img");
-            foreach ($imageElements as $image) {
-                $image->parentNode->removeChild($image);
-            }
-
-            // Remove breadcrumb navigation
-            $breadcrumbElements = $xpath->query("//nav[contains(@class, 'breadcrumb')]");
-            foreach ($breadcrumbElements as $breadcrumb) {
-                $breadcrumb->parentNode->removeChild($breadcrumb);
+            foreach ($aClasses as $aClass) {
+                $elementsToRemove = $xpath->query("//*[contains(@class, '" . $aClass . "')]");
+                foreach ($elementsToRemove as $element) {
+                    $element->parentNode->removeChild($element);
+                }
             }
         }
 
@@ -137,22 +137,23 @@
          *
          * @return string Extracted content
          */
-        public function extractContentFromDom(\DOMDocument $dom)
+        public function extractContentFromDom(\DOMDocument $dom, $sTargetClass = 'typesense-extract')
         {
             $xpath    = new \DOMXPath($dom);
-            $elements = $xpath->query("//div[contains(@class, 'layout-wrapper')]");
+            $elements = $xpath->query("//*[contains(@class, '" . $sTargetClass . "')]");
 
             if ($elements->length > 0) {
                 $content = preg_replace('/[\r\n\t\f\v ]+/', ' ', $elements->item(0)->textContent);
-
-                return html_entity_decode(
-                    strip_tags($content),
-                    ENT_QUOTES | ENT_HTML5,
-                    'UTF-8'
-                );
+            }
+            else {
+                $content = preg_replace('/[\r\n\t\f\v ]+/', ' ', $dom->textContent);
             }
 
-            return '';
+            return html_entity_decode(
+                strip_tags($content),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
         }
 
         /**

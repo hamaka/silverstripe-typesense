@@ -48,17 +48,17 @@ By default, the service removes non-content HTML tags (e.g. `<style>`, `<script>
 
 ```yaml
 Hamaka\Typesense\Service\TypesenseService:
-  # Tags to strip from the HTML DOM (e.g. script, style, header)
+  # Tags to strip from the HTML DOM (e.g. script, style, img)
   strip_dom_tags:
-    - style
-    - script
-    - img
+    - h1
+    - header
+    - footer
 
   # Remove elements based on CSS class names
-  strip_dom_classes: []
+  strip_dom_classes: [ ]
 
-  # Extract content from a specific DOM element by class if present (e.g. 'main-content')
-  target_dom_class: ''
+  # Extract content from a specific DOM element by class (e.g. 'main-content')
+  target_dom_class: 'article'
 ```
 
 ### Making a collection for Typesense
@@ -82,7 +82,8 @@ ElliotSawyer\SilverstripeTypesense\Typesense:
       excluded_classes:
         - SilverStripe\ErrorPage\ErrorPage
 ```
-
+## Usage
+Run the build task `dev/tasks/TypesenseSyncTaskHmk` to create the collections and upload them to your Typesense server.
 ## License
 
 MIT

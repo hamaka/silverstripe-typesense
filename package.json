@@ -8,14 +8,15 @@
   "homepage": "https://hamaka.nl#readme",
   "devDependencies": {
     "glob": "^11.0.3",
-    "webpack": "^5.99.9"
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
   },
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch"
   },
   "dependencies": {
-    "typesense-instantsearch-adapter": "^2.9.0",
-    "instantsearch.js": "^4.79.0"
+    "instantsearch.js": "^4.79.0",
+    "typesense-instantsearch-adapter": "^2.9.0"
   }
 }

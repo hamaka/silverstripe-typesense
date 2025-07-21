@@ -7,6 +7,11 @@ export default class TypesenseInstantSearch {
   {
     this.indexName = indexName;
 
+    // Check if the current URL is a localhost URL and append ".local" to indexName if it is
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      this.indexName = `${this.indexName}_local`;
+    }
+
     this.init();
   }
 

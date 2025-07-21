@@ -12,11 +12,11 @@
                     </svg>
                 </div>
             </div>
-            <section class="section section--full-width section--filled">
+            <section class="section section--full-width section--filled search-overlay__section">
 
                 <div class="container search-overlay__container">
                     <div class="search-overlay__content">
-                        <div id="global-search-input"></div>
+                        <div id="global-search-input" class="search-overlay__input"></div>
                         <div id="global-stats" class="search-overlay__stats typography"></div>
                         <div id="global-hits" class="search-overlay__results"></div>
                     </div>

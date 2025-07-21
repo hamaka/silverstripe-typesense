@@ -69,7 +69,7 @@
                 ShortcodeParser::get('default')->register('image', [TypesenseImageShortcodeProvider::class, 'handle_shortcode']);
 
                 try {
-                    // Test the page in live mode
+                    // Test the page in li  ve mode
 
                     $response = Director::test(Director::makeRelative($object->getAbsoluteLiveLink()));
                     if ($response->getStatusCode() !== 200) {
@@ -157,6 +157,7 @@
         }
 
         /**
+        /**
          * Initialize the Typesense data array with basic fields
          *
          * @param DataObject $object The object to initialize data for
@@ -168,7 +169,7 @@
             $aData               = [];
             $aData['id']         = (string)$object->ID;
             $aData['ClassName']  = $object->ClassName;
-            $aData['Title']      = $this->convertHtmlToAccessibleText($object->Title);
+            $aData['Title']      = $this->convertHtmlToPlainText($object->Title);
             $aData['LastEdited'] = strtotime($object->LastEdited);
             $aData['Created']    = strtotime($object->Created);
 
@@ -188,7 +189,7 @@
         {
             foreach ($fields as $field) {
                 if ($object->hasField($field) && $object->$field) {
-                    $aData[$field] = $this->convertHtmlToAccessibleText($object->$field);
+                    $aData[$field] = $this->convertHtmlToPlainText($object->$field);
                 }
             }
 
@@ -202,7 +203,7 @@
          *
          * @return string Accessible text representation
          */
-        public function convertHtmlToAccessibleText($sHtml)
+        public function convertHtmlToPlainText($sHtml)
         {
             $dom = new \DOMDocument();
             @$dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),

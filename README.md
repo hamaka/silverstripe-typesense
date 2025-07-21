@@ -54,7 +54,7 @@ Hamaka\Typesense\Service\TypesenseService:
     - header
     - footer
 
-  # Remove elements based on CSS class names
+  # Remove elements based on CSS class names (e.g. related-news)
   strip_dom_classes: [ ]
 
   # Extract content from a specific DOM element by class (e.g. 'main-content')
@@ -70,10 +70,11 @@ You can configure the Typesense integration using YAML configuration. Create a f
 ElliotSawyer\SilverstripeTypesense\Typesense:
   collections:
     SilverStripe\CMS\Model\SiteTree:
-      name: "Pages"
+      name: "hamaka.nl" # Use a unique name to prevent merging with other collections 
       fields:
         - { name: Title, type: string, sort: true }
         - { name: FullPage, type: string, optional: true }
+        - { name: URL, type: string, optional: true }
       default_sorting_field: # 'exampleField'
       token_separators: # '-'
       symbols_to_index: # '+'
@@ -83,7 +84,81 @@ ElliotSawyer\SilverstripeTypesense\Typesense:
         - SilverStripe\ErrorPage\ErrorPage
 ```
 ## Usage
+### Building the Typesense index
 Run the build task `dev/tasks/TypesenseSyncTaskHmk` to create the collections and upload them to your Typesense server.
+### Building a front-end search
+
+#### Building the JavaScript bundle
+This package includes a JavaScript component for implementing Typesense instant search in your frontend. To build the JavaScript bundle:
+
+1. Install the required npm packages:
+```bash
+npm install
+```
+
+2. Build the JavaScript bundle for production:
+```bash
+npm run build
+```
+
+Or for development with automatic rebuilding on changes:
+```bash
+npm run dev
+```
+
+The compiled bundle will be available at `client/dist/javascript/bundle.js`.
+
+#### Using the TypesenseInstantSearch class in your JavaScript
+
+The TypesenseInstantSearch class is exposed as a UMD module, which means you can use it in various ways:
+
+1. Direct script tag:
+```html
+<script src="vendor/hamaka/silverstripe-typesense/client/dist/javascript/bundle.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const search = new TypesenseInstantSearch({
+      indexName: 'your-collection-name'
+    });
+  });
+</script>
+```
+
+2. ES6 import (if you're using a module bundler like webpack):
+```javascript
+import TypesenseInstantSearch from 'path/to/bundle.js';
+
+document.addEventListener('DOMContentLoaded', function() {
+  const search = new TypesenseInstantSearch({
+    indexName: 'your-collection-name'
+  });
+});
+```
+
+3. CommonJS require:
+```javascript
+const TypesenseInstantSearch = require('path/to/bundle.js');
+
+document.addEventListener('DOMContentLoaded', function() {
+  const search = new TypesenseInstantSearch({
+    indexName: 'your-collection-name'
+  });
+});
+```
+
+Make sure your HTML includes the necessary elements for the search interface:
+
+```html
+<div class="js-global-search-container" data-typesense-search-key="your-search-key" data-typesense-server="your-typesense-server">
+  <button class="js-search-open">Open Search</button>
+  <button class="js-search-close">Close Search</button>
+  <div id="global-search-input"></div>
+  <div id="global-stats"></div>
+  <div id="global-hits"></div>
+</div>
+```
+
+
 ## License
 
 MIT

@@ -11,7 +11,7 @@
     use SilverStripe\ORM\DataObject;
     use Typesense\Exceptions\ObjectNotFound;
 
-    class SiteTreeExt extends Extension
+    class SiteTreeExtension extends Extension
     {
 
         /**
@@ -37,7 +37,8 @@
             $aData = $oTypesenseService->initializeTypesenseData($this->owner);
 
             // Add page content to data array
-            $aData['FullPage'] = $oTypesenseService->convertHtmlToAccessibleText($pageContent);
+            $aData['FullPage'] = $oTypesenseService->convertHtmlToPlainText($pageContent);
+            $aData['URL']      = $this->owner->AbsoluteLink();
 
             return $aData;
         }

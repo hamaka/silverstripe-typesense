@@ -10,7 +10,8 @@
         "elliotsawyer/silverstripe-typesense": "^0.0.7",
         "ext-dom": "*",
         "ext-libxml": "*",
-        "masterminds/html5": "^2.9"
+        "masterminds/html5": "^2.9",
+        "symbiote/silverstripe-queuedjobs": "^5.0"
     },
     "archive": {
         "exclude": [

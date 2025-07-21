@@ -11,6 +11,7 @@
     use ElliotSawyer\SilverstripeTypesense\Typesense;
     use SilverStripe\Dev\BuildTask;
     use SilverStripe\ORM\DB;
+    use Symbiote\QueuedJobs\Services\QueuedJobService;
     use function _t;
 
     class TypesenseSyncTask extends BuildTask
@@ -29,25 +30,40 @@
 
         public function run($request = null)
         {
+            // Display copyright information
             $copyright = (new Typesense())->CopyrightStatement();
             DB::alteration_message($copyright);
-            $client = Typesense::client();
-            $this->extend('onBeforeBuildAllCollections');
+
+            // Find or create all collections
             $collections = $this->findOrMakeAllCollections();
-            $this->extend('onAfterBuildAllCollections', $collections);
-            if ( ! $collections) {
+
+            if (!$collections || $collections->count() === 0) {
+                DB::alteration_message("No collections found to process");
                 return;
             }
 
-            $this->extend('onBeforeImportDocuments');
+            // Create and queue the job
+            $job = new TypesenseSyncJob($collections->toArray());
+
+            // Queue the job with a 1-minute delay to ensure the web request completes
+            $jobID = QueuedJobService::singleton()->queueJob($job);
+
+            // Provide feedback
+            DB::alteration_message(
+                "Typesense sync job has been queued (Job ID: {$jobID}). The synchronization will run in the background."
+            );
+            DB::alteration_message(
+                "This approach avoids the 30-second timeout issue that can occur when running the sync directly."
+            );
+            DB::alteration_message(
+                "Total collections to process: " . $collections->count()
+            );
+
+            // List the collections that will be processed
+            DB::alteration_message("Collections to be processed:");
             foreach ($collections as $collection) {
-                if (empty($client->collections[$collection->Name])) {
-                    DB::alteration_message($collection->syncWithTypesenseServer());
-                }
-                $collection->import();
+                DB::alteration_message("- {$collection->Name}");
             }
-            $this->extend('onAfterImportDocuments', $collections);
-            $this->extend('onEndOfSyncTask');
         }
 
         private function findOrMakeAllCollections()
@@ -55,7 +71,7 @@
             $ymlIndexes = Typesense::config()->get('collections') ?? [];
             foreach ($ymlIndexes as $recordClass => $collection) {
                 $collectionName = $collection['name'] ?? null;
-                if ( ! $collectionName) {
+                if (!$collectionName) {
                     continue;
                 }
 

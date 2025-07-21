@@ -1,3 +1,6 @@
 SilverStripe\CMS\Model\SiteTree:
   extensions:
     - Hamaka\Typesense\Extensions\SiteTreeExtension
+ElliotSawyer\SilverstripeTypesense\Collection:
+  extensions:
+    - Hamaka\Typesense\Extensions\CollectionExtension

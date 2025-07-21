@@ -206,7 +206,7 @@
         {
             $dom = new HTML5();
             $dom = $dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),
-                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                [LIBXML_HTML_NOIMPLIED,  LIBXML_HTML_NODEFDTD]);
             $xpath = new \DOMXPath($dom);
 
             $text = '';

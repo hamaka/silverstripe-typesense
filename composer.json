@@ -9,7 +9,16 @@
         "silverstripe/framework": "^5.0",
         "elliotsawyer/silverstripe-typesense": "^0.0.7",
         "ext-dom": "*",
-        "ext-libxml": "*"
+        "ext-libxml": "*",
+        "masterminds/html5": "^2.9"
+    },
+    "archive": {
+        "exclude": [
+            "/node_modules",
+            "/vendor",
+            "*.log",
+            "*.DS_Store"
+        ]
     },
     "autoload": {
         "psr-4": {

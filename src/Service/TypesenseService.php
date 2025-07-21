@@ -2,11 +2,11 @@
 
     namespace Hamaka\Typesense\Service;
 
+    use Masterminds\HTML5;
     use SilverStripe\Assets\Shortcodes\TypesenseImageShortcodeProvider;
     use SilverStripe\CMS\Model\SiteTree;
     use SilverStripe\Control\Director;
     use SilverStripe\Core\Config\Configurable;
-    use SilverStripe\Core\Extension;
     use SilverStripe\Core\Injector\Injectable;
     use SilverStripe\ORM\DataObject;
     use SilverStripe\Security\Member;
@@ -50,7 +50,6 @@
         ];
         private static $strip_dom_classes = [];
 
-
         /**
          * Render the page as a non-member in live mode and process the DOM
          *
@@ -80,8 +79,8 @@
                     $html = $response->getBody();
 
                     // Load the HTML into a DOM document
-                    $dom = new \DOMDocument();
-                    @$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                    $dom = new HTML5();
+                    $dom = $dom->loadHTML($html, [LIBXML_HTML_NOIMPLIED, LIBXML_HTML_NODEFDTD]);
 
                     $oTypesenseConfig = $this->config();
 
@@ -157,7 +156,7 @@
         }
 
         /**
-        /**
+         * /**
          * Initialize the Typesense data array with basic fields
          *
          * @param DataObject $object The object to initialize data for
@@ -205,8 +204,8 @@
          */
         public function convertHtmlToPlainText($sHtml)
         {
-            $dom = new \DOMDocument();
-            @$dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),
+            $dom = new HTML5();
+            $dom = $dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),
                 LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $xpath = new \DOMXPath($dom);
 

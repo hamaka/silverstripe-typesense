@@ -204,11 +204,9 @@
          */
         public function convertHtmlToPlainText($sHtml)
         {
-            $sHtml = preg_replace('/&(?!#?[a-z0-9]+;)/i', '&amp;', $sHtml);
-
-            $dom = new \DOMDocument();
-            @$dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),
-                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom = new HTML5();
+            $dom = $dom->loadHTML(mb_convert_encoding($sHtml, 'HTML-ENTITIES', 'UTF-8'),
+                [LIBXML_HTML_NOIMPLIED,  LIBXML_HTML_NODEFDTD]);
             $xpath = new \DOMXPath($dom);
 
             $text = '';

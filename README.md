@@ -1,4 +1,3 @@
-local
 # Silverstripe Typesense Integration
 
 This module provides integration between Silverstripe CMS and Typesense search engine.
@@ -12,7 +11,7 @@ Before installing the hamaka/silverstripe-typesense package, you have to add the
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://bitbucket.org/hamaka/silverstripe-typesense.git"
+            "url": "https://[YOURBITBUCKETUSERNAME]@bitbucket.org/hamaka/silverstripe-typesense.git"
         }
     ]
 }
@@ -86,15 +85,7 @@ ElliotSawyer\SilverstripeTypesense\Typesense:
 ```
 ## Usage
 ### Building the Typesense index
-Run the build task `dev/tasks/TypesenseSyncTaskHmk` to create the collections and queue a background job that will upload them to your Typesense server.
-
-The task now uses Silverstripe's queued jobs system to avoid the 30-second timeout issue that can occur when running the sync directly. The synchronization will run in the background, and you can monitor its progress in the CMS under "Jobs" in the admin section.
-
-#### Job Queue Requirements
-This module requires the [symbiote/silverstripe-queuedjobs](https://github.com/symbiote/silverstripe-queuedjobs) module to be installed and configured in your project. Make sure you have set up a cron job or process to run the jobs as described in the queuedjobs documentation.
-
-#### Automatic Daily Synchronization
-The module is configured to automatically run a synchronization job every day at 1:00 AM. This ensures your Typesense index stays up-to-date without manual intervention. You can modify this schedule by editing the `_config/queuedjobs.yml` file.
+Run the build task `dev/tasks/TypesenseSyncTaskHmk` to create the collections and upload them to your Typesense server.
 ### Building a front-end search
 
 #### Building the JavaScript bundle

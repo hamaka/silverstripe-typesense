@@ -11,7 +11,7 @@ Before installing the hamaka/silverstripe-typesense package, you have to add the
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://carlohamaka@bitbucket.org/hamaka/silverstripe-typesense.git"
+            "url": "https://bitbucket.org/hamaka/silverstripe-typesense.git"
         }
     ]
 }

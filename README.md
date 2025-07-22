@@ -11,7 +11,7 @@ Before installing the hamaka/silverstripe-typesense package, you have to add the
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://[YOURBITBUCKETUSERNAME]@bitbucket.org/hamaka/silverstripe-typesense.git"
+            "url": "https://carlohamaka@bitbucket.org/hamaka/silverstripe-typesense.git"
         }
     ]
 }
@@ -89,24 +89,7 @@ Run the build task `dev/tasks/TypesenseSyncTaskHmk` to create the collections an
 ### Building a front-end search
 
 #### Building the JavaScript bundle
-This package includes a JavaScript component for implementing Typesense instant search in your frontend. To build the JavaScript bundle:
-
-1. Install the required npm packages:
-```bash
-npm install
-```
-
-2. Build the JavaScript bundle for production:
-```bash
-npm run build
-```
-
-Or for development with automatic rebuilding on changes:
-```bash
-npm run dev
-```
-
-The compiled bundle will be available at `client/dist/javascript/bundle.js`.
+This package includes a JavaScript component for implementing Typesense instant search in your frontend.
 
 #### Using the TypesenseInstantSearch class in your JavaScript
 

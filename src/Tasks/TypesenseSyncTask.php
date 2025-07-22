@@ -9,6 +9,7 @@
 
     use ElliotSawyer\SilverstripeTypesense\Collection;
     use ElliotSawyer\SilverstripeTypesense\Typesense;
+    use SilverStripe\Control\Director;
     use SilverStripe\Dev\BuildTask;
     use SilverStripe\ORM\DB;
     use function _t;
@@ -29,6 +30,15 @@
 
         public function run($request = null)
         {
+            // Allow execution on localhost or via CLI
+            $isLocalhost = isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
+
+            if (Director::is_cli() !== true && !$isLocalhost) {
+                DB::alteration_message("This task can only be executed by CLI or on localhost.");
+                DB::alteration_message("<p>php ./vendor/silverstripe/framework/cli-script.php /dev/tasks/TypesenseSyncTaskHmk</p>");
+                return false;
+            }
+
             $copyright = (new Typesense())->CopyrightStatement();
             DB::alteration_message($copyright);
             $client = Typesense::client();

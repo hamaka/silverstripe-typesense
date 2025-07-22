@@ -98,7 +98,7 @@ export default class TypesenseInstantSearch {
           {
             return `<div class="search-result typography">
 
-                <h3><a href="${data.URL}" target="_blank">${data._highlightResult.Title?.value}</a></h3>
+                <h3><a href="${data.URL}">${data._highlightResult.Title?.value}</a></h3>
                 <p style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                   ${data._snippetResult.FullPage?.value || ""}
                 </p>

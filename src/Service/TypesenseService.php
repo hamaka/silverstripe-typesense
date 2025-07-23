@@ -2,7 +2,6 @@
 
     namespace Hamaka\Typesense\Service;
 
-    use Masterminds\HTML5;
     use SilverStripe\Assets\Shortcodes\TypesenseImageShortcodeProvider;
     use SilverStripe\CMS\Model\SiteTree;
     use SilverStripe\Control\Director;
@@ -79,8 +78,8 @@
                     $html = $response->getBody();
 
                     // Load the HTML into a DOM document
-                    $dom = new HTML5();
-                    $dom = $dom->loadHTML($html, [LIBXML_HTML_NOIMPLIED, LIBXML_HTML_NODEFDTD]);
+                    $dom = new \DOMDocument();
+                    @$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
                     $oTypesenseConfig = $this->config();
 

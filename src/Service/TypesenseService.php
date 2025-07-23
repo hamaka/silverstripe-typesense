@@ -73,9 +73,11 @@
                     if ($response->getStatusCode() !== 200) {
                         return false;
                     }
-
                     // Process the response as before
                     $html = $response->getBody();
+
+                    // Replace <br> tags with spaces before loading into DOM
+                    $html = preg_replace('/<br\s*\/?>/i', ' ', $html);
 
                     // Load the HTML into a DOM document
                     $dom = new \DOMDocument();

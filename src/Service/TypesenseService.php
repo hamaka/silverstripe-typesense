@@ -498,14 +498,6 @@
                     continue;
                 }
 
-                if (isset($_SERVER['HTTP_HOST'])) {
-                    if (
-                        strpos($_SERVER['HTTP_HOST'], 'localhost') !== false
-                    ) {
-                        $collectionName = $collectionName . '_local';
-                    }
-                }
-
                 $dbCollection = Collection::find_or_make($collectionName, $recordClass, $collection);
             }
             $indexes = Collection::get()

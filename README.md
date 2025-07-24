@@ -39,6 +39,9 @@ TYPESENSE_SERVER="https://typesense.hamakaserver.nl:443"
 
 # this is obtained from the Typesense dashboard, after you've started it up
 TYPESENSE_SEARCH_KEY=""
+
+# Set this to true on localhost
+TYPESENSE_LOCAL=
 ```
 ### Configuring the FullPage DOM Extract Service
 
@@ -70,7 +73,7 @@ You can configure the Typesense integration using YAML configuration. Create a f
 ElliotSawyer\SilverstripeTypesense\Typesense:
   collections:
     SilverStripe\CMS\Model\SiteTree:
-      name: "hamaka.nl" # Use a unique name to prevent merging with other collections 
+      name: "your-collection" # Use a unique name to prevent merging with other collections 
       fields:
         - { name: Title, type: string, sort: true }
         - { name: FullPage, type: string, optional: true }
@@ -82,6 +85,15 @@ ElliotSawyer\SilverstripeTypesense\Typesense:
       connection_timeout: 2
       excluded_classes:
         - SilverStripe\ErrorPage\ErrorPage
+---
+Only:
+  envorconstant:
+    TYPESENSE_LOCAL: true
+---
+ElliotSawyer\SilverstripeTypesense\Typesense:
+  collections:
+    SilverStripe\CMS\Model\SiteTree:
+      name: "your-collection_local" #Make sure to add the suffix "_local" when using the front-end search
 ```
 ## Usage
 ### Building the Typesense index

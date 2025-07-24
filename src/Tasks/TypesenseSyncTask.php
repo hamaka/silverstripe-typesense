@@ -9,6 +9,7 @@
 
     use ElliotSawyer\SilverstripeTypesense\Collection;
     use ElliotSawyer\SilverstripeTypesense\Typesense;
+    use Hamaka\Typesense\Service\TypesenseService;
     use SilverStripe\Control\Director;
     use SilverStripe\Dev\BuildTask;
     use SilverStripe\ORM\DB;
@@ -43,7 +44,7 @@
             DB::alteration_message($copyright);
             $client = Typesense::client();
             $this->extend('onBeforeBuildAllCollections');
-            $collections = $this->findOrMakeAllCollections();
+            $collections = TypesenseService::findOrMakeAllCollections();
             $this->extend('onAfterBuildAllCollections', $collections);
             if ( ! $collections) {
                 return;
@@ -58,33 +59,5 @@
             }
             $this->extend('onAfterImportDocuments', $collections);
             $this->extend('onEndOfSyncTask');
-        }
-
-        private function findOrMakeAllCollections()
-        {
-            $ymlIndexes = Typesense::config()->get('collections') ?? [];
-            foreach ($ymlIndexes as $recordClass => $collection) {
-                $collectionName = $collection['name'] ?? null;
-                if ( ! $collectionName) {
-                    continue;
-                }
-
-                if (isset($_SERVER['HTTP_HOST'])) {
-                    if (
-                        strpos($_SERVER['HTTP_HOST'], 'localhost') !== false
-                    ) {
-                        $collectionName = $collectionName . '_local';
-                    }
-                }
-
-                $dbCollection = Collection::find_or_make($collectionName, $recordClass, $collection);
-            }
-            $indexes = Collection::get()
-                                 ->sort('Sort ASC')
-                                 ->filter([
-                                     'Enabled' => true
-                                 ]);
-
-            return $indexes;
         }
     }

@@ -10,6 +10,8 @@
     use SilverStripe\Core\Injector\Injector;
     use SilverStripe\ORM\DataObject;
     use Typesense\Exceptions\ObjectNotFound;
+    use function in_array;
+    use function strtolower;
 
     class SiteTreeExtension extends Extension
     {
@@ -46,10 +48,17 @@
         public function onAfterPublish(&$original)
         {
             try {
-                $oCollections = Collection::get()->filter(['RecordClass' => $this->owner->getClassAncestry(), 'Enabled' => true]);
+
+                $oCollections = TypesenseService::findOrMakeAllCollections()->filter(['RecordClass' => $this->owner->getClassAncestry()]);
 
                 if ($oCollections->count() > 0) {
                     foreach ($oCollections as $oCollection) {
+
+                        $excludedClasses = json_decode($oCollection->ExcludedClasses, true) ?? [];
+                        if (in_array(strtolower($this->owner->ClassName), $excludedClasses)) {
+                            break;
+                        }
+
                         $connection_timeout = (int)$oCollection->ConnectionTimeout ?: 2;
                         $client             = Typesense::client($connection_timeout);
 

@@ -2,6 +2,8 @@
 
     namespace Hamaka\Typesense\Service;
 
+    use ElliotSawyer\SilverstripeTypesense\Collection;
+    use ElliotSawyer\SilverstripeTypesense\Typesense;
     use SilverStripe\Assets\Shortcodes\TypesenseImageShortcodeProvider;
     use SilverStripe\CMS\Model\SiteTree;
     use SilverStripe\Control\Director;
@@ -485,5 +487,33 @@
             $text = preg_replace('/[ \t]+/', ' ', $text);
 
             return trim($text);
+        }
+
+        public static function findOrMakeAllCollections()
+        {
+            $ymlIndexes = Typesense::config()->get('collections') ?? [];
+            foreach ($ymlIndexes as $recordClass => $collection) {
+                $collectionName = $collection['name'] ?? null;
+                if ( ! $collectionName) {
+                    continue;
+                }
+
+                if (isset($_SERVER['HTTP_HOST'])) {
+                    if (
+                        strpos($_SERVER['HTTP_HOST'], 'localhost') !== false
+                    ) {
+                        $collectionName = $collectionName . '_local';
+                    }
+                }
+
+                $dbCollection = Collection::find_or_make($collectionName, $recordClass, $collection);
+            }
+            $indexes = Collection::get()
+                                 ->sort('Sort ASC')
+                                 ->filter([
+                                     'Enabled' => true
+                                 ]);
+
+            return $indexes;
         }
     }

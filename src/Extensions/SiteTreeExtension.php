@@ -26,6 +26,10 @@
          */
         public function getTypesenseDocument(): array
         {
+            if((int)$this->owner->ShowInSearch === 0){
+                return false;
+            }
+
             $oTypesenseService = TypesenseService::singleton();
 
             // Get page content as rendered for a non-member
@@ -61,6 +65,11 @@
 
                         $connection_timeout = (int)$oCollection->ConnectionTimeout ?: 2;
                         $client             = Typesense::client($connection_timeout);
+
+                        if ((int)$this->owner->ShowInSearch === 0) {
+                            $client->collections[$oCollection->Name]->documents[(string)$this->owner->ID]->delete();
+                            break;
+                        }
 
                         if ($this->owner->hasMethod('getTypesenseDocument')) {
                             $data = $this->owner->getTypesenseDocument();

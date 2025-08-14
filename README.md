@@ -20,6 +20,10 @@ Before installing the hamaka/silverstripe-typesense package, you have to add the
 
 ```
 
+```shell
+composer require hamaka/silverstripe-typesense
+```
+
 After installing, run a dev/build to ensure all new classes are available.
 
 ```bash

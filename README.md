@@ -150,11 +150,12 @@ Make sure your HTML includes the necessary elements for the search interface:
 ```html
 <% include TypesenseSearchOverlay %>
 ```
-Open and close the search overlay with these classes.
+Open the search overlay with this class. You can add multiple open buttons throughout your site.
 ```html
 <button class="js-search-open">Open Search</button>
-<button class="js-search-close">Close Search</button>
 ```
+
+The search overlay includes a close button by default, but you can also add additional close buttons with the `js-search-close` class if needed.
 
 
 ## License

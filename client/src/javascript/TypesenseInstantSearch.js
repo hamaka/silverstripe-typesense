@@ -57,25 +57,34 @@ export default class TypesenseInstantSearch {
       this.instantSearch.start();
 
       // Toggle gedrag
-      this.openButton = document.getElementsByClassName('js-search-open')[0];
-      this.closeButton = document.getElementsByClassName('js-search-close')[0];
+      this.openButtons = document.getElementsByClassName('js-search-open');
+      this.closeButtons = document.getElementsByClassName('js-search-close');
 
-      this.openButton?.addEventListener('click', () => {
-        this.searchContainer.classList.remove('d-none');
-        $('.search-box-wrapper').animate({scrollTop: 0}, "fast");
-        this.searchContainer.querySelector('input[type="search"]')?.focus();
-      });
+      // Add event listeners to all open buttons
+      for (let i = 0; i < this.openButtons.length; i++) {
+        this.openButtons[i]?.addEventListener('click', () => {
+          this.searchContainer.classList.remove('d-none');
+          $('.search-box-wrapper').animate({scrollTop: 0}, "fast");
+          this.searchContainer.querySelector('input[type="search"]')?.focus();
+        });
+      }
 
-      this.closeButton?.addEventListener('click', () => {
-        this.searchContainer.classList.add('d-none');
-        this.reset();
-      });
+      // Add event listeners to all close buttons
+      for (let i = 0; i < this.closeButtons.length; i++) {
+        this.closeButtons[i]?.addEventListener('click', () => {
+          this.searchContainer.classList.add('d-none');
+          this.reset();
+        });
+      }
 
       // ESC sluit overlay
       document.addEventListener('keydown', (e) => {
         if ( e.key === 'Escape' && !this.searchContainer.classList.contains('d-none') )
         {
-          this.closeButton.click();
+          // Use the first close button if available
+          if (this.closeButtons.length > 0) {
+            this.closeButtons[0].click();
+          }
         }
       });
     }

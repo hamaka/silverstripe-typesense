@@ -150,6 +150,11 @@ Make sure your HTML includes the necessary elements for the search interface:
 ```html
 <% include TypesenseSearchOverlay %>
 ```
+Open and close the search overlay with these classes.
+```html
+<button class="js-search-open">Open Search</button>
+<button class="js-search-close">Close Search</button>
+```
 
 
 ## License

@@ -148,13 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
 Make sure your HTML includes the necessary elements for the search interface:
 
 ```html
-<div class="js-global-search-container" data-typesense-search-key="your-search-key" data-typesense-server="your-typesense-server">
-  <button class="js-search-open">Open Search</button>
-  <button class="js-search-close">Close Search</button>
-  <div id="global-search-input"></div>
-  <div id="global-stats"></div>
-  <div id="global-hits"></div>
-</div>
+<% include TypesenseSearchOverlay %>
 ```
 
 

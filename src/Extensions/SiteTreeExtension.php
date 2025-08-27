@@ -9,8 +9,8 @@
     use SilverStripe\Core\Extension;
     use SilverStripe\Core\Injector\Injector;
     use SilverStripe\ORM\DataObject;
-    use Typesense\Exceptions\ObjectNotFound;
     use SilverStripe\Versioned\Versioned;
+    use Typesense\Exceptions\ObjectNotFound;
     use function in_array;
     use function strtolower;
 
@@ -44,8 +44,7 @@
             $aData = $oTypesenseService->initializeTypesenseData($this->owner);
 
             // Add page content to data array
-            $aData['FullPage']   = $oTypesenseService->convertHtmlToPlainText($pageContent);
-
+            $aData['FullPage'] = $oTypesenseService->convertHtmlToPlainText($pageContent);
 
             $sCurrentReadingMode = Versioned::get_reading_mode(); //Prevents stage url
             Versioned::set_reading_mode('Stage.Live'); //Prevents stage url
@@ -86,6 +85,12 @@
                         else {
                             $fieldsArray = $oCollection->FieldsArray();
                             $data        = $oCollection->getTypesenseDocument($this->owner, $fieldsArray);
+                        }
+
+                        if ( ! $data['URL'] || $data['URL'] === "") {
+                            $client->collections[$oCollection->Name]->documents[(string)$this->owner->ID]->delete();
+
+                            break;
                         }
 
                         $client->collections[$oCollection->Name]->documents->upsert($data);

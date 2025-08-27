@@ -10,6 +10,7 @@
     use SilverStripe\Core\Injector\Injector;
     use SilverStripe\ORM\DataObject;
     use Typesense\Exceptions\ObjectNotFound;
+    use SilverStripe\Versioned\Versioned;
     use function in_array;
     use function strtolower;
 
@@ -26,7 +27,7 @@
          */
         public function getTypesenseDocument(): array
         {
-            if((int)$this->owner->ShowInSearch === 0){
+            if ((int)$this->owner->ShowInSearch === 0) {
                 return false;
             }
 
@@ -43,14 +44,22 @@
             $aData = $oTypesenseService->initializeTypesenseData($this->owner);
 
             // Add page content to data array
-            $aData['FullPage'] = $oTypesenseService->convertHtmlToPlainText($pageContent);
-            $aData['URL']      = $this->owner->AbsoluteLink();
+            $aData['FullPage']   = $oTypesenseService->convertHtmlToPlainText($pageContent);
+
+
+            $sCurrentReadingMode = Versioned::get_reading_mode(); //Prevents stage url
+            Versioned::set_reading_mode('Stage.Live'); //Prevents stage url
+
+            $aData['URL'] = $this->owner->AbsoluteLink();
+
+            Versioned::set_reading_mode($sCurrentReadingMode); //Prevents stage url
 
             return $aData;
         }
 
         public function onAfterPublish(&$original)
         {
+
             try {
 
                 $oCollections = TypesenseService::findOrMakeAllCollections()->filter(['RecordClass' => $this->owner->getClassAncestry()]);
@@ -107,5 +116,23 @@
             catch (ObjectNotFound $e) {
                 Injector::inst()->get(LoggerInterface::class)->info($e->getMessage());
             }
+        }
+
+        /**
+         * (NOT IN USE) Clean URL by removing 'stage=stage' parameter
+         *
+         * @param string $url The URL to clean
+         *
+         * @return string The cleaned URL
+         */
+        protected function cleanUrl($url)
+        {
+            // Remove stage=stage parameter
+            $url = preg_replace('/\?stage=stage$/', '', $url); // If it's the only parameter
+            $url = preg_replace('/\?stage=stage&/', '?', $url); // If it's the first parameter
+            $url = preg_replace('/&stage=stage$/', '', $url); // If it's the last parameter
+            $url = preg_replace('/&stage=stage&/', '&', $url); // If it's in the middle
+
+            return $url;
         }
     }

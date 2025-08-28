@@ -87,13 +87,15 @@
                             $data        = $oCollection->getTypesenseDocument($this->owner, $fieldsArray);
                         }
 
-                        // if ( ! $data['URL'] || $data['URL'] === "") {
-                        //     $client->collections[$oCollection->Name]->documents[(string)$this->owner->ID]->delete();
-                        //
-                        //     break;
-                        // }
+                        if ( ! isset($data['URL']) || $data['URL'] === "") {
+                            $client->collections[$oCollection->Name]->documents[(string)$this->owner->ID]->delete();
 
-                        $client->collections[$oCollection->Name]->documents->upsert($data);
+                            break;
+                        }
+
+                        if ($data && sizeof($data) > 0) {
+                            $client->collections[$oCollection->Name]->documents->upsert($data);
+                        }
                     }
                 }
             }

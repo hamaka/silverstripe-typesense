@@ -298,15 +298,9 @@ export default class TypesenseInstantSearch {
         });
       }
 
-      // Universal Analytics
-      if (typeof window.ga === 'function') {
-        try { window.ga('set', 'page', newUrl); } catch (e) {}
-        try { window.ga('set', 'title', title); } catch (e) {}
-        try { window.ga('send', 'pageview'); } catch (e) {}
-      }
-
       // Matomo / Piwik
-      if (Array.isArray(window._paq)) {
+      window._paq = window._paq || [];
+      if (typeof window._paq.push === 'function') {
         try { window._paq.push(['setCustomUrl', fullUrl]); } catch (e) {}
         try { window._paq.push(['setDocumentTitle', title]); } catch (e) {}
         try { window._paq.push(['trackPageView']); } catch (e) {}

@@ -1,6 +1,5 @@
 {
     "name": "hamaka/silverstripe-typesense",
-    "version": "1",
     "description": "Typesense integration for Silverstripe CMS",
     "type": "silverstripe-vendormodule",
     "license": "MIT",

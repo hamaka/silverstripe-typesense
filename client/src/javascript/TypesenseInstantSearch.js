@@ -117,7 +117,7 @@ export default class TypesenseInstantSearch {
         // Update document title and track the virtual pageview for back/forward navigation
         this._updateDocumentTitle(q);
         const newUrl = window.location.pathname + window.location.search + window.location.hash;
-        this._trackVirtualPageview(newUrl);
+        this._trackVirtualPageview(newUrl, q);
         this._suppressHistory = false;
       });
     }
@@ -264,7 +264,7 @@ export default class TypesenseInstantSearch {
       // Update document title to reflect the current search term
       this._updateDocumentTitle(q);
       // Track virtual pageview for SPA-style navigation
-      this._trackVirtualPageview(newUrl);
+      this._trackVirtualPageview(newUrl, q);
     } catch (e) {
       // no-op
     }
@@ -284,20 +284,33 @@ export default class TypesenseInstantSearch {
   }
 
   // Send virtual pageview to Google Analytics (GA4/UA) and Matomo/Piwik if available
-  _trackVirtualPageview(newUrl) {
+  _trackVirtualPageview(newUrl, q) {
     try {
       const fullUrl = window.location.origin + newUrl;
       const title = document.title || '';
+      const searchTerm = (q || '').toString();
 
-      // GA4 via gtag
-      if (typeof window.gtag === 'function') {
+      const hasGtag = typeof window.gtag === 'function';
+      const hasGtm = Array.isArray(window.dataLayer) && window.dataLayer.some(e => e['gtm.start']);
+
+      if (hasGtag && !hasGtm) {
+        // Alleen gtag.js aanwezig, geen Tag Manager
         window.gtag('event', 'page_view', {
           page_location: fullUrl,
           page_path: newUrl,
           page_title: title
         });
+        // Stuur evt. ook een zoek-event met de term als eigenschap
+        window.gtag('event', 'view_search_results', {
+          search_term: searchTerm
+        });
+      } else if (hasGtm) {
+        // Tag Manager actief (ongeacht of gtag ook bestaat)
+        window.dataLayer.push({
+          event: 'view_search_results',
+          search_term: searchTerm
+        });
       }
-
       // Matomo / Piwik
       window._paq = window._paq || [];
       if (typeof window._paq.push === 'function') {

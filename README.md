@@ -4,8 +4,7 @@ Full-page [Typesense](https://typesense.org) search for Silverstripe CMS 5. The 
 
 It is built on top of [elliotsawyer/silverstripe-typesense](https://codeberg.org/0x/silverstripe-typesense), which provides the Typesense client, the collection models and the CMS admin.
 
-<!-- TODO: add screenshot docs/en/images/overlay.png -->
-<!-- ![Search overlay with instant results](docs/en/images/overlay.png) -->
+![Search overlay with instant results](docs/en/images/overlay.png)
 
 ## How this differs from elliotsawyer/silverstripe-typesense
 

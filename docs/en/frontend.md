@@ -2,8 +2,7 @@
 
 The module includes a search overlay that shows results while the visitor types, built with [InstantSearch.js](https://www.algolia.com/doc/guides/building-search-ui/what-is-instantsearch/js/) and the [Typesense InstantSearch adapter](https://github.com/typesense/typesense-instantsearch-adapter).
 
-<!-- TODO: add screenshot images/overlay.png -->
-<!-- ![Search overlay with instant results](images/overlay.png) -->
+![Search overlay with instant results](images/overlay.png)
 
 ## Features
 

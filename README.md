@@ -1,163 +1,85 @@
-# Silverstripe Typesense Integration
+# Silverstripe Typesense
 
-This module provides integration between Silverstripe CMS and Typesense search engine.
+Full-page [Typesense](https://typesense.org) search for Silverstripe CMS 5. The module indexes each page **as a visitor sees it**, so content from elements, blocks and templates is searchable too, not only the `Content` field. It also ships an instant-search overlay that shows results while you type.
+
+It is built on top of [elliotsawyer/silverstripe-typesense](https://codeberg.org/0x/silverstripe-typesense), which provides the Typesense client, the collection models and the CMS admin.
+
+<!-- TODO: add screenshot docs/en/images/overlay.png -->
+<!-- ![Search overlay with instant results](docs/en/images/overlay.png) -->
+
+## How this differs from elliotsawyer/silverstripe-typesense
+
+| | elliotsawyer/silverstripe-typesense | This module |
+|---|---|---|
+| What gets indexed | Database fields you configure per collection | The rendered page as plain text (`FullPage`), plus `Title` and `URL` |
+| Keeping the index up to date | Sync task / queued jobs | Automatic upsert on publish, delete on unpublish or when *Show in search* is off, plus its own sync task |
+| Frontend | None | Instant-search overlay (InstantSearch.js), `?q=` in the URL with back-button support, GA4 / Tag Manager / Matomo events |
+| Local development | — | `_local` collection suffix so local and production indexes don't mix |
+
+The admin for collections, fields and synonyms is still the one from Elliot Sawyer's module. This module turns his sync task off and replaces it with `TypesenseSyncTaskHmk`.
+
+## Requirements
+
+- PHP 8.0+
+- Silverstripe CMS 5
+- A running Typesense server
+- jQuery and the Bootstrap `d-none` utility class on the frontend (used by the overlay, see [Frontend search](docs/en/frontend.md#known-limitations))
 
 ## Installation
-
-Before installing the hamaka/silverstripe-typesense package, you have to add the path to your composer.json
-
-```json
-{
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@bitbucket.org:hamaka/silverstripe-typesense.git"
-        }
-    ]
-}
-
-
-
-```
 
 ```shell
 composer require hamaka/silverstripe-typesense
 ```
 
-After installing, run a dev/build to ensure all new classes are available.
+Then run `vendor/bin/sake dev/build flush=1`.
 
-```bash
-yarn run dev/build
-```
+## Quick start
 
-## Configuration
+1. Add the environment variables to your `.env`:
 
-### Enviorment variables for Typesense
+   ```bash
+   TYPESENSE_API_KEY="your-admin-api-key"
+   TYPESENSE_SERVER="https://typesense.example.com:443"
+   TYPESENSE_SEARCH_KEY="your-search-only-api-key"
+   ```
 
-```bash
-#'head /dev/urandom | shasum -a 256' works great for this
-TYPESENSE_API_KEY=5f02d0b58c49a99e8e8f65b74ebb9fdc5b1a2dfe56639bdc8551650900435f33
+2. Define a collection: copy [`_config/typesense.yml.example`](_config/typesense.yml.example) to `app/_config/typesense.yml` and give it a unique name.
 
-# this is your INTERNALLY accessible typesense server, not the one that appears in frontend
-TYPESENSE_SERVER="https://typesense.hamakaserver.nl:443"
+3. Build the index:
 
-# this is obtained from the Typesense dashboard, after you've started it up
-TYPESENSE_SEARCH_KEY=""
+   ```shell
+   vendor/bin/sake dev/tasks/TypesenseSyncTaskHmk
+   ```
 
-# Set this to true on localhost
-TYPESENSE_LOCAL=
-```
-### Configuring the FullPage DOM Extract Service
+4. Add the overlay to your template and load the script:
 
-Use this configuration to clean scraped HTML content before indexing it in Typesense. You can remove unwanted DOM tags and optionally target a specific element by CSS class to extract the main content for the FullPage field.
+   ```html
+   <% include TypesenseSearchOverlay %>
+   <button class="js-search-open">Search</button>
 
-By default, the service removes non-content HTML tags (e.g. `<style>`, `<script>`, `<img>`). See _config/typesense.yml. 
+   <script src="$resourceURL('hamaka/silverstripe-typesense:client/dist/javascript/bundle.js')"></script>
+   <script>
+     document.addEventListener('DOMContentLoaded', () => {
+       new TypesenseInstantSearch({ indexName: 'your-collection' });
+     });
+   </script>
+   ```
 
-```yaml
-Hamaka\Typesense\Service\TypesenseService:
-  # Tags to strip from the HTML DOM (e.g. script, style, img)
-  strip_dom_tags:
-    - h1
-    - header
-    - footer
+From then on, every publish updates the index.
 
-  # Remove elements based on CSS class names (e.g. related-news)
-  strip_dom_classes: [ ]
+## Documentation
 
-  # Extract content from a specific DOM element by class (e.g. 'main-content')
-  target_dom_class: 'article'
-```
+- [How it works](docs/en/how-it-works.md): how pages are rendered and turned into searchable text
+- [Configuration](docs/en/configuration.md): environment variables, collections, DOM clean-up
+- [Frontend search](docs/en/frontend.md): the overlay, JavaScript usage, analytics, known limitations
+- [Development](docs/en/development.md): building the JavaScript bundle, releases
 
-### Making a collection for Typesense
+## Changelog
 
-You can configure the Typesense integration using YAML configuration. Create a file in your project's `_config` directory:
+See [Releases](../../releases) for the changes in each version.
 
-```yaml
-# app/_config/typesense.yml
-ElliotSawyer\SilverstripeTypesense\Typesense:
-  collections:
-    SilverStripe\CMS\Model\SiteTree:
-      name: "your-collection" # Use a unique name to prevent merging with other collections 
-      fields:
-        - { name: Title, type: string, sort: true }
-        - { name: FullPage, type: string, optional: true }
-        - { name: URL, type: string, optional: true }
-      default_sorting_field: # 'exampleField'
-      token_separators: # '-'
-      symbols_to_index: # '+'
-      import_limit: 10
-      connection_timeout: 2
-      excluded_classes:
-        - SilverStripe\ErrorPage\ErrorPage
----
-Only:
-  envorconstant:
-    TYPESENSE_LOCAL: true
----
-ElliotSawyer\SilverstripeTypesense\Typesense:
-  collections:
-    SilverStripe\CMS\Model\SiteTree:
-      name: "your-collection_local" #Make sure to add the suffix "_local" when using the front-end search
-```
-## Usage
-### Building the Typesense index
-Run the build task `dev/tasks/TypesenseSyncTaskHmk` to create the collections and upload them to your Typesense server.
-### Building a front-end search
+## Credits and license
 
-#### Building the JavaScript bundle
-This package includes a JavaScript component for implementing Typesense instant search in your frontend.
+This module is released under the [MIT license](LICENSE).
 
-#### Using the TypesenseInstantSearch class in your JavaScript
-
-The TypesenseInstantSearch class is exposed as a UMD module, which means you can use it in various ways:
-
-1. Direct script tag:
-```html
-<script src="vendor/hamaka/silverstripe-typesense/client/dist/javascript/bundle.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const search = new TypesenseInstantSearch({
-      indexName: 'your-collection-name'
-    });
-  });
-</script>
-```
-
-2. ES6 import (if you're using a module bundler like webpack):
-```javascript
-import TypesenseInstantSearch from 'path/to/bundle.js';
-
-document.addEventListener('DOMContentLoaded', function() {
-  const search = new TypesenseInstantSearch({
-    indexName: 'your-collection-name'
-  });
-});
-```
-
-3. CommonJS require:
-```javascript
-const TypesenseInstantSearch = require('path/to/bundle.js');
-
-document.addEventListener('DOMContentLoaded', function() {
-  const search = new TypesenseInstantSearch({
-    indexName: 'your-collection-name'
-  });
-});
-```
-
-Make sure your HTML includes the necessary elements for the search interface:
-
-```html
-<% include TypesenseSearchOverlay %>
-```
-Open the search overlay with this class. You can add multiple open buttons throughout your site.
-```html
-<button class="js-search-open">Open Search</button>
-```
-
-The search overlay includes a close button by default, but you can also add additional close buttons with the `js-search-close` class if needed.
-
-
-## License
-
-MIT
+It depends on [elliotsawyer/silverstripe-typesense](https://codeberg.org/0x/silverstripe-typesense) by Elliot Sawyer, licensed under LGPL-3.0 with attribution. `src/Tasks/TypesenseSyncTask.php` is derived from that module's sync task and keeps its original copyright header.

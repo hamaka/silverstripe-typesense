@@ -1,0 +1,29 @@
+# Example collection config. Copy this file to app/_config/typesense.yml.
+# Files in _config without the .yml extension are not loaded by Silverstripe.
+---
+Name: app-typesense
+---
+ElliotSawyer\SilverstripeTypesense\Typesense:
+  collections:
+    SilverStripe\CMS\Model\SiteTree:
+      name: "example.com" # Must be unique per site on a shared Typesense server
+      fields:
+        - { name: Title, type: string, sort: true }
+        - { name: FullPage, type: string, optional: true }
+        - { name: URL, type: string, optional: true }
+      default_sorting_field: # 'exampleField'
+      token_separators: # '-'
+      symbols_to_index: # '+'
+      import_limit: 10
+      connection_timeout: 2
+      excluded_classes:
+        - SilverStripe\ErrorPage\ErrorPage
+---
+Only:
+  envorconstant:
+    TYPESENSE_LOCAL: true
+---
+ElliotSawyer\SilverstripeTypesense\Typesense:
+  collections:
+    SilverStripe\CMS\Model\SiteTree:
+      name: "example.com_local" # The frontend adds "_local" to the index name on localhost

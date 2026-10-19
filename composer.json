@@ -1,6 +1,6 @@
 {
     "name": "hamaka/silverstripe-typesense",
-    "description": "Typesense integration for Silverstripe CMS",
+    "description": "Full-page Typesense search for Silverstripe CMS, with an instant-search overlay. Built on elliotsawyer/silverstripe-typesense.",
     "type": "silverstripe-vendormodule",
     "license": "MIT",
     "require": {
@@ -15,6 +15,7 @@
         "exclude": [
             "/node_modules",
             "/vendor",
+            "/docs/en/images",
             "*.log",
             "*.DS_Store"
         ]

@@ -1,18 +1,6 @@
-ElliotSawyer\SilverstripeTypesense\Typesense:
-  collections:
-    SilverStripe\CMS\Model\SiteTree:
-      name: "hamaka.nl" # Use a unique name to prevent merging with other collections
-      fields:
-        - { name: Title, type: string, sort: true }
-        - { name: FullPage, type: string, optional: true }
-        - { name: URL, type: string, optional: true }
-      default_sorting_field: # 'exampleField'
-      token_separators: # '-'
-      symbols_to_index: # '+'
-      import_limit: 10
-      connection_timeout: 2
-      excluded_classes:
-        - SilverStripe\ErrorPage\ErrorPage
-
+---
+Name: hamaka-typesense
+---
+# Replaced by Hamaka\Typesense\Tasks\TypesenseSyncTask (dev/tasks/TypesenseSyncTaskHmk)
 ElliotSawyer\SilverstripeTypesense\TypesenseSyncTask:
   is_enabled: false
